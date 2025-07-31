@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://xmlns.jcp.org/jsf/core"
+>
+  <h:head>
+    <title>CRUD Local JSF</title>
+  </h:head>
+  <h:body>
+    <h:form id="form">
+      <h:panelGroup id="panelFormulario">
+        <h3>
+          #{empleadoBean.editando ? 'Editar Empleado' : 'Agregar Empleado'}
+        </h3>
+        <h:panelGrid columns="2">
+          Nombre:
+          <h:panelGroup>
+            <h:inputText
+              id="name"
+              required="true"
+              requiredMessage="Por favor, ingrese el nombre del empleado."
+              value="#{empleadoBean.empleadoActual.nombre}"
+            />
+            <h:message for="name" style="color: red" />
+          </h:panelGroup>
+
+          Correo:
+          <h:panelGroup>
+            <h:inputText
+              id="mail"
+              required="true"
+              requiredMessage="El correo es obligatorio."
+              value="#{empleadoBean.empleadoActual.correo}"
+            />
+            <h:message for="mail" style="color: red" />
+          </h:panelGroup>
+        </h:panelGrid>
+
+        <!-- Botones dinámicos -->
+        <h:panelGrid columns="2" cellpadding="5">
+          <h:commandButton
+            rendered="#{not empleadoBean.editando }"
+            value="Agregar"
+            action="#{empleadoBean.guardar}"
+            ><f:ajax execute="@form" render="@form tablaEmpleados"
+          /></h:commandButton>
+
+          <h:commandButton
+            rendered="#{empleadoBean.editando }"
+            value="Guardar cambios"
+            action="#{empleadoBean.guardar}"
+            ><f:ajax execute="@form" render="@form tablaEmpleados"
+          /></h:commandButton>
+
+          <h:commandButton
+            rendered="#{empleadoBean.editando }"
+            value="Cancelar"
+            action="#{empleadoBean.cancelarEdicion}"
+            ><f:ajax execute="@form" render="@form tablaEmpleados"
+          /></h:commandButton>
+        </h:panelGrid>
+      </h:panelGroup>
+      <h:panelGroup id="panelTabla">
+        <h3>Lista de Empleados</h3>
+        <h:dataTable
+          id="tablaEmpleados"
+          value="#{empleadoBean.empleados}"
+          var="e"
+        >
+          <h:column>
+            <f:facet name="header">ID</f:facet>
+            #{e.id}
+          </h:column>
+          <h:column>
+            <f:facet name="header">Nombre</f:facet>
+            #{e.nombre}
+          </h:column>
+          <h:column>
+            <f:facet name="header">Correo</f:facet>
+            #{e.correo}
+          </h:column>
+          <h:column>
+            <f:facet name="header">Acción</f:facet>
+            <h:commandLink
+              value="Editar"
+              action="#{empleadoBean.seleccionarParaEditar(e)}"
+            >
+              <f:ajax render="form:panelFormulario"
+            /></h:commandLink>
+            <h:commandLink
+              value="Eliminar"
+              action="#{empleadoBean.eliminar(e.id)}"
+              immediate="true"
+              ><f:ajax render="form:panelTabla" />
+            </h:commandLink>
+          </h:column>
+        </h:dataTable>
+      </h:panelGroup>
+    </h:form>
+  </h:body>
+</html>
