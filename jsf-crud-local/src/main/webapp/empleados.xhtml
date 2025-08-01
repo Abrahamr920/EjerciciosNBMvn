@@ -6,96 +6,212 @@
 >
   <h:head>
     <title>CRUD Local JSF</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
   </h:head>
   <h:body>
     <h:form id="form">
-      <h:panelGroup id="panelFormulario">
-        <h3>
-          #{empleadoBean.editando ? 'Editar Empleado' : 'Agregar Empleado'}
-        </h3>
-        <h:panelGrid columns="2">
-          Nombre:
-          <h:panelGroup>
-            <h:inputText
-              id="name"
-              required="true"
-              requiredMessage="Por favor, ingrese el nombre del empleado."
-              value="#{empleadoBean.empleadoActual.nombre}"
-            />
-            <h:message for="name" style="color: red" />
-          </h:panelGroup>
-
-          Correo:
-          <h:panelGroup>
-            <h:inputText
-              id="mail"
-              required="true"
-              requiredMessage="El correo es obligatorio."
-              value="#{empleadoBean.empleadoActual.correo}"
-            />
-            <h:message for="mail" style="color: red" />
-          </h:panelGroup>
-        </h:panelGrid>
-
-        <!-- Botones dinámicos -->
-        <h:panelGrid columns="2" cellpadding="5">
-          <h:commandButton
-            rendered="#{not empleadoBean.editando }"
-            value="Agregar"
-            action="#{empleadoBean.guardar}"
-            ><f:ajax execute="@form" render="@form tablaEmpleados"
-          /></h:commandButton>
-
-          <h:commandButton
-            rendered="#{empleadoBean.editando }"
-            value="Guardar cambios"
-            action="#{empleadoBean.guardar}"
-            ><f:ajax execute="@form" render="@form tablaEmpleados"
-          /></h:commandButton>
-
-          <h:commandButton
-            rendered="#{empleadoBean.editando }"
-            value="Cancelar"
-            action="#{empleadoBean.cancelarEdicion}"
-            ><f:ajax execute="@form" render="@form tablaEmpleados"
-          /></h:commandButton>
-        </h:panelGrid>
-      </h:panelGroup>
-      <h:panelGroup id="panelTabla">
-        <h3>Lista de Empleados</h3>
-        <h:dataTable
-          id="tablaEmpleados"
-          value="#{empleadoBean.empleados}"
-          var="e"
+      <h:panelGroup
+        layout="block"
+        class="min-h-screen w-full flex flex-row items-center justify-center p-6 bg-gray-100 gap-6"
+      >
+        <h:panelGroup
+          layout="block"
+          class="flex-1 max-w-md bg-white p-6 rounded-lg shadow"
+          id="panelFormulario"
         >
-          <h:column>
-            <f:facet name="header">ID</f:facet>
-            #{e.id}
-          </h:column>
-          <h:column>
-            <f:facet name="header">Nombre</f:facet>
-            #{e.nombre}
-          </h:column>
-          <h:column>
-            <f:facet name="header">Correo</f:facet>
-            #{e.correo}
-          </h:column>
-          <h:column>
-            <f:facet name="header">Acción</f:facet>
-            <h:commandLink
-              value="Editar"
-              action="#{empleadoBean.seleccionarParaEditar(e)}"
+          <h3 class="text-2xl font-semibold mb-4 text-center">Formulario</h3>
+          <h3 class="text-2xl font-semibold mb-6 text-center">
+            #{empleadoBean.editando ? 'Editar Empleado' : 'Agregar Empleado'}
+          </h3>
+
+          <div class="space-y-4 w-full max-w-2xl">
+            <!-- Nombre -->
+            <div class="grid grid-cols-3 items-center">
+              <label for="name" class="font-medium text-right pr-4 col-span-1"
+                >Nombre:</label
+              >
+              <div class="col-span-2">
+                <h:inputText
+                  id="name"
+                  required="true"
+                  requiredMessage="Por favor, ingrese el nombre del empleado."
+                  value="#{empleadoBean.empleadoActual.nombre}"
+                  styleClass="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <h:message
+                  for="name"
+                  styleClass="text-red-600 text-sm mt-1 block"
+                />
+              </div>
+            </div>
+
+            <!-- Correo -->
+            <div class="grid grid-cols-3 items-center">
+              <label for="mail" class="font-medium text-right pr-4 col-span-1"
+                >Correo:</label
+              >
+              <div class="col-span-2">
+                <h:inputText
+                  id="mail"
+                  required="true"
+                  requiredMessage="El correo es obligatorio."
+                  value="#{empleadoBean.empleadoActual.correo}"
+                  styleClass="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <h:message
+                  for="mail"
+                  styleClass="text-red-600 text-sm mt-1 block"
+                />
+              </div>
+            </div>
+          </div>
+
+          <h:panelGroup layout="block" styleClass="mt-6 w-full">
+            <h:commandButton
+              rendered="#{not empleadoBean.editando }"
+              value="Agregar"
+              action="#{empleadoBean.guardar}"
+              styleClass="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded shadow cursor-pointer"
             >
-              <f:ajax render="form:panelFormulario"
-            /></h:commandLink>
-            <h:commandLink
-              value="Eliminar"
-              action="#{empleadoBean.eliminar(e.id)}"
-              immediate="true"
-              ><f:ajax render="form:panelTabla" />
-            </h:commandLink>
-          </h:column>
-        </h:dataTable>
+              <f:ajax execute="@form" render="@form tablaEmpleados" />
+            </h:commandButton>
+          </h:panelGroup>
+
+          <h:panelGroup layout="block" styleClass="mt-6 flex gap-4 w-full">
+            <h:commandButton
+              rendered="#{empleadoBean.editando }"
+              value="Guardar cambios"
+              action="#{empleadoBean.guardar}"
+              styleClass="w-1/2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded shadow cursor-pointer"
+            >
+              <f:ajax execute="@form" render="@form tablaEmpleados" />
+            </h:commandButton>
+
+            <h:commandButton
+              rendered="#{empleadoBean.editando }"
+              value="Cancelar"
+              action="#{empleadoBean.cancelarEdicion}"
+              styleClass="w-1/2 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 rounded shadow cursor-pointer"
+            >
+              <f:ajax execute="@form" render="@form tablaEmpleados" />
+            </h:commandButton>
+          </h:panelGroup>
+        </h:panelGroup>
+
+        <h:panelGroup
+          id="panelTabla"
+          layout="block"
+          class="flex-1 max-w-3xl bg-white p-6 rounded-lg shadow overflow-auto"
+        >
+          <h3 class="text-xl font-semibold mb-4 text-center">
+            Lista de Empleados
+          </h3>
+
+          <h:panelGroup
+            layout="block"
+            styleClass="relative flex flex-col w-full h-full overflow-scroll-y-auto text-gray-700 bg-white shadow-md bg-clip-border rounded-xl"
+          >
+            <h:dataTable
+              id="tablaEmpleados"
+              value="#{empleadoBean.empleados}"
+              var="e"
+              styleClass="w-full text-left table-auto min-w-max"
+              rowClasses="even:bg-blue-gray-50/50"
+            >
+              <!-- ID -->
+              <h:column>
+                <f:facet name="header">
+                  <th class="p-4 border-b border-blue-gray-100 bg-blue-gray-50">
+                    <p
+                      class="block text-sm font-normal leading-none text-blue-gray-900 opacity-70"
+                    >
+                      ID
+                    </p>
+                  </th>
+                </f:facet>
+                <td class="p-4">
+                  <p
+                    class="block text-sm font-normal leading-normal text-blue-gray-900"
+                  >
+                    #{e.id}
+                  </p>
+                </td>
+              </h:column>
+
+              <!-- Nombre -->
+              <h:column>
+                <f:facet name="header">
+                  <th class="p-4 border-b border-blue-gray-100 bg-blue-gray-50">
+                    <p
+                      class="block text-sm font-normal leading-none text-blue-gray-900 opacity-70"
+                    >
+                      Nombre
+                    </p>
+                  </th>
+                </f:facet>
+                <td class="p-4">
+                  <p
+                    class="block text-sm font-normal leading-normal text-blue-gray-900"
+                  >
+                    #{e.nombre}
+                  </p>
+                </td>
+              </h:column>
+
+              <!-- Correo -->
+              <h:column>
+                <f:facet name="header">
+                  <th class="p-4 border-b border-blue-gray-100 bg-blue-gray-50">
+                    <p
+                      class="block text-sm font-normal leading-none text-blue-gray-900 opacity-70"
+                    >
+                      Correo
+                    </p>
+                  </th>
+                </f:facet>
+                <td class="p-4">
+                  <p
+                    class="block text-sm font-normal leading-normal text-blue-gray-900"
+                  >
+                    #{e.correo}
+                  </p>
+                </td>
+              </h:column>
+
+              <!-- Acciones -->
+              <h:column>
+                <f:facet name="header">
+                  <th
+                    class="p-4 border-b border-blue-gray-100 bg-blue-gray-50"
+                  ></th>
+                </f:facet>
+                <td class="p-4">
+                  <div class="flex gap-4">
+                    <h:commandLink
+                      value="Editar"
+                      action="#{empleadoBean.seleccionarParaEditar(e)}"
+                      styleClass="text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      <f:ajax render="form:panelFormulario" />
+                    </h:commandLink>
+
+                    <h:commandLink
+                      value="Eliminar"
+                      action="#{empleadoBean.eliminar(e.id)}"
+                      immediate="true"
+                      styleClass="text-red-600 hover:text-red-800 font-medium"
+                    >
+                      <f:ajax render="form:panelTabla" />
+                    </h:commandLink>
+                  </div>
+                </td>
+              </h:column>
+            </h:dataTable>
+          </h:panelGroup>
+        </h:panelGroup>
       </h:panelGroup>
     </h:form>
   </h:body>
