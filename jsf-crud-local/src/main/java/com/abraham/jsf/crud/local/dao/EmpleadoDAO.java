@@ -1,96 +1,92 @@
 package com.abraham.jsf.crud.local.dao;
 
-import com.abraham.jsf.crud.local.conexion.Conexion;
-import com.abraham.jsf.crud.local.models.Empleado;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.io.InputStream;
 import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+import com.abraham.jsf.crud.local.models.Empleado;
 
 public class EmpleadoDAO {
 
+    private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("miUnidadPersistencia");
+
+    public void agregar(Empleado emp) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.persist(emp);
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
+    }
+
+    public Empleado obtener(int id) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.find(Empleado.class, id);
+        } finally {
+            em.close();
+        }
+    }
+
     public List<Empleado> listar() {
-        List<Empleado> empleados = new ArrayList<>();
-        String sql = "SELECT id, nombre, correo FROM empleados";
-
-         try (Connection conn = Conexion.getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                empleados.add(new Empleado(
-                    rs.getInt("id"),
-                    rs.getString("nombre"),
-                    rs.getString("correo")
-                ));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        InputStream is = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("META-INF/persistence.xml");
+        if (is == null) {
+            System.out.println("No se encontró persistence.xml en META-INF");
+        } else {
+            System.out.println("persistence.xml encontrado");
         }
-        return empleados;
-    }
 
-    public void agregar(Empleado empleado) {
-        String sql = "INSERT INTO empleados(nombre, correo) VALUES (?, ?)";
-        try (Connection conn = Conexion.getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, empleado.getNombre());
-            ps.setString(2, empleado.getCorreo());
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        EntityManager em = emf.createEntityManager();
+        try {
+            return em.createQuery("SELECT e FROM Empleado e", Empleado.class).getResultList();
+        } finally {
+            em.close();
         }
     }
 
-    public void actualizar(Empleado empleado) {
-        String sql = "UPDATE empleados SET nombre = ?, correo = ? WHERE id = ?";
-        try (Connection conn = Conexion.getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, empleado.getNombre());
-            ps.setString(2, empleado.getCorreo());
-            ps.setInt(3, empleado.getId());
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public void actualizar(Empleado emp) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.merge(emp);
+            em.getTransaction().commit();
+        } finally {
+            em.close();
         }
     }
 
     public void eliminar(int id) {
-        String sql = "DELETE FROM empleados WHERE id = ?";
-        try (Connection conn = Conexion.getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Empleado emp = em.find(Empleado.class, id);
+            if (emp != null) {
+                em.remove(emp);
+            }
+            em.getTransaction().commit();
+        } finally {
+            em.close();
         }
     }
 
-    // Opcional: método para verificar duplicados
     public boolean correoDuplicado(String correo, int idActual) {
-        String sql = "SELECT COUNT(*) FROM empleados WHERE correo = ? AND id != ?";
-        try (Connection conn = Conexion.getConexion();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        EntityManager em = emf.createEntityManager();
+        try {
+            Long count = em.createQuery(
+                    "SELECT COUNT(e) FROM Empleado e WHERE e.correo = :correo AND e.id != :idActual", Long.class)
+                    .setParameter("correo", correo)
+                    .setParameter("idActual", idActual)
+                    .getSingleResult();
 
-            ps.setString(1, correo);
-            ps.setInt(2, idActual);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+            return count > 0;
+        } finally {
+            em.close();
         }
-        return false;
     }
 }
