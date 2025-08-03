@@ -1,20 +1,19 @@
 package com.abraham.jsf.crud.local.dao;
 
-import java.io.InputStream;
 import java.util.List;
 
+import javax.enterprise.context.Dependent;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
+import com.abraham.jsf.crud.local.jpa.JpaUtil;
 import com.abraham.jsf.crud.local.models.Empleado;
+import java.io.Serializable;
 
-public class EmpleadoDAO {
-
-    private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("miUnidadPersistencia");
+@Dependent
+public class EmpleadoDAO implements Serializable{
 
     public void agregar(Empleado emp) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = JpaUtil.getEntityManager();
         try {
             em.getTransaction().begin();
             em.persist(emp);
@@ -25,7 +24,7 @@ public class EmpleadoDAO {
     }
 
     public Empleado obtener(int id) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = JpaUtil.getEntityManager();
         try {
             return em.find(Empleado.class, id);
         } finally {
@@ -34,15 +33,7 @@ public class EmpleadoDAO {
     }
 
     public List<Empleado> listar() {
-        InputStream is = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("META-INF/persistence.xml");
-        if (is == null) {
-            System.out.println("No se encontró persistence.xml en META-INF");
-        } else {
-            System.out.println("persistence.xml encontrado");
-        }
-
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = JpaUtil.getEntityManager();
         try {
             return em.createQuery("SELECT e FROM Empleado e", Empleado.class).getResultList();
         } finally {
@@ -51,7 +42,7 @@ public class EmpleadoDAO {
     }
 
     public void actualizar(Empleado emp) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = JpaUtil.getEntityManager();
         try {
             em.getTransaction().begin();
             em.merge(emp);
@@ -62,7 +53,7 @@ public class EmpleadoDAO {
     }
 
     public void eliminar(int id) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = JpaUtil.getEntityManager();
         try {
             em.getTransaction().begin();
             Empleado emp = em.find(Empleado.class, id);
@@ -76,7 +67,7 @@ public class EmpleadoDAO {
     }
 
     public boolean correoDuplicado(String correo, int idActual) {
-        EntityManager em = emf.createEntityManager();
+        EntityManager em = JpaUtil.getEntityManager();
         try {
             Long count = em.createQuery(
                     "SELECT COUNT(e) FROM Empleado e WHERE e.correo = :correo AND e.id != :idActual", Long.class)
