@@ -8,6 +8,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.abraham.jsf.crud.local.dao.EmpleadoDAO;
@@ -20,7 +21,8 @@ public class EmpleadoBean implements Serializable {
     private List<Empleado> empleados = new ArrayList<>();
     private Empleado empleadoActual = new Empleado();
 
-    private EmpleadoDAO empleadoDAO = new EmpleadoDAO();
+    @Inject
+    private EmpleadoDAO empleadoDAO;
 
     public List<Empleado> getEmpleados() {
         return empleados;
